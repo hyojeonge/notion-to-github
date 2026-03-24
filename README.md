@@ -1,55 +1,5 @@
-# 📝 Notion To Github Template
+# 📝 My TIL Collection
 
-Notion 데이터베이스에 작성한 글을 매일 자동으로 GitHub 리포지토리에 백업하고, README에 목록을 업데이트해주는 자동화 템플릿입니다.
+노션에서 작성된 TIL(Today I Learned)이 자동으로 업로드되는 저장소입니다.
 
-## 🚀 기능
-- **자동 백업:** 매일 자정(KST 00:05), 어제 작성한 노션 글을 Markdown 파일로 저장합니다.
-- **월별 정리:** `TIL/2026/01` 처럼 연/월별 폴더로 자동 정리됩니다.
-- **README 갱신:** 최근 달의 글은 목록으로 보여주고, 지난달 글은 접기(Toggle)로 깔끔하게 정리합니다.
-
-## 🛠 사용 방법 (Setup)
-
-### 1. 이 저장소 사용하기
-우측 상단의 **Use this template** 버튼을 누르거나 **Fork** 하여 자신의 리포지토리로 가져갑니다.
-
-### 2. Notion 설정
-1. [Notion Developers](https://www.notion.so/my-integrations)에서 새 통합(Integration)을 만들고 `Internal Integration Token`을 복사합니다.
-2. Notion 데이터베이스 페이지 우측 상단 `...` -> `연결(Connect)` -> 위에서 만든 통합을 추가합니다.
-3. 데이터베이스의 링크를 복사하여 **ID**를 확보합니다. (URL 중 `?` 앞부분의 32자리 숫자+영문)
-4. **필수:** 데이터베이스 속성(컬럼) 이름이 `제목`과 `날짜`여야 합니다. (다를 경우 `update_readme.py` 상단 변수 수정 필요)
-
-### 3. GitHub Secrets 등록
-리포지토리의 `Settings` > `Secrets and variables` > `Actions` > `New repository secret` 클릭:
-- `NOTION_TOKEN`: 위에서 복사한 노션 통합 토큰
-- `NOTION_DATABASE_ID`: 노션 데이터베이스 ID
-
-### 4. 권한 설정
-`Settings` > `Actions` > `General` > `Workflow permissions` 에서:
-- ✅ **Read and write permissions** 선택 후 Save.
-
-### 5. GitHub Actions 활성화 (⚠️ 중요)
-Fork한 저장소는 기본적으로 자동화(Actions)가 비활성화되어 있습니다.
-- 상단의 `Actions` 탭으로 이동하여 **"I understand my workflows, go ahead and enable them"** 버튼을 누릅니다.
-- 왼쪽 메뉴에서 `Update Notion Log`를 클릭하고, 상단에 뜨는 경고 메시지 우측의 **"Enable workflow"** 버튼을 눌러 스케줄러를 켜주세요.
-- 👉 **[자세한 활성화 방법은 Wiki를 참고해주세요.](https://github.com/Dylan-yoon/notion-to-github/wiki/%E2%9A%99%EF%B8%8F-Fork%ED%95%9C-%EC%A0%80%EC%9E%A5%EC%86%8C%EC%97%90%EC%84%9C-GitHub-Actions-%ED%99%9C%EC%84%B1%ED%99%94%ED%95%98%EA%B8%B0)**
-
-### 6. 적용 확인
-`Actions` 탭에서 워크플로우를 수동 실행(`Run workflow`) 해보거나, 다음날 자동 실행을 기다립니다.
-
-### 7. 비고
-추가로 시간 셋팅을 위한 GUIDE Docs
-[🕒 시간 설정 가이드 보러가기](./docs/TIME_SETTING_GUIDE.md) 에서 확인하시길 바랍니다.
-
----
-<!-- ----------------------------------------------------------------------------이 부분까지 지우고 사용------------------------------------------------------------------------------ -->
-
-# 🧑‍💻 나의 개발 블로그
-<!-- 자유롭게 작성하시면됩니다. 본인이 어떤 정보를 기록할 것인지에 대해 Readme를 작성해주시면 됩니다. -->
-안녕하세요! 매일 Notion에 글을 씁니다.
-
-
-<br/>
-<!-- 아래부분 부터는 자동으로 쌓여갑니다. 주석 포함해서 수정하신다면 작동하지 않을 수 있으니 주의해주세요. -->
-<!-- Daily Link Start -->
-
-<!-- Daily Link End -->
+## 📚 글 목록
