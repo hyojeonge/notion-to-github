@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       RESET_MODE:
-        description: '⚠️ README 파일을 초기화하고 다시 만들까요?'
+        description: '⚠️ 리셋하려면 체크하세요'
         type: boolean
         default: false
 
@@ -12,10 +12,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
@@ -26,15 +26,18 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-          # 이 줄이 체크박스 값을 파이썬으로 던져주는 생명줄입니다.
-          RESET_MODE: ${{ github.event.inputs.RESET_MODE }}
-          FETCH_MODE: "ALL"
-        run: python update_readme.py
+        # 환경변수가 아니라 파이썬 실행 시 인자값(--reset)으로 직접 전달합니다.
+        run: |
+          if [ "${{ github.event.inputs.RESET_MODE }}" = "true" ]; then
+            python update_readme.py --reset
+          else
+            python update_readme.py
+          fi
 
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "docs: force update and reset" || exit 0
+          git commit -m "docs: clean update" || exit 0
           git push
