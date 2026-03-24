@@ -3,42 +3,38 @@ name: Manual Sync & Init
 on:
   workflow_dispatch:
     inputs:
-      reset_readme:
+      RESET_MODE:
         description: '⚠️ README 파일을 초기화하고 다시 만들까요? (체크 시 기존 내용 삭제됨)'
-        required: false
         type: boolean
         default: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    permissions: 
-      contents: write
     steps:
-      - uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v3
+
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
-          
+          python-version: '3.9'
+
       - name: Install dependencies
         run: pip install requests
 
-      - name: Run script
+      - name: Run Update Script
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          # 핵심: 체크박스 입력값을 RESET_MODE 환경 변수로 전달
+          RESET_MODE: ${{ github.event.inputs.RESET_MODE }}
           FETCH_MODE: "ALL"
-          RESET_MODE: ${{ inputs.reset_readme }}
         run: python update_readme.py
-        
+
       - name: Commit and Push
         run: |
-          git config --global user.name "${{ secrets.GIT_USER_NAME || 'hyojeonge' }}"
-          git config --global user.email "${{ secrets.GIT_USER_EMAIL || 'gywjd.k.02@gmail.com' }}"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "docs: update notion log" || exit 0
-          git push origin master
+          git push
