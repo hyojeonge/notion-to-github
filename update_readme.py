@@ -4,14 +4,14 @@ import re
 import shutil
 from datetime import datetime, timezone, timedelta
 
-# [설정 영역]
+# 설정
 SAVE_DIR_ROOT = "TIL"
 README_FILE = "README.md"
 MARKER_START = ""
 MARKER_END = ""
 
-NOTION_TOKEN = os.environ['NOTION_TOKEN']
-DATABASE_ID = os.environ['NOTION_DATABASE_ID']
+NOTION_TOKEN = os.environ.get('NOTION_TOKEN')
+DATABASE_ID = os.environ.get('NOTION_DATABASE_ID')
 
 headers = {
     "Authorization": f"Bearer {NOTION_TOKEN}",
@@ -32,7 +32,7 @@ def get_blocks(block_id):
     return results
 
 def get_db_table_md(db_id):
-    """내부 데이터베이스를 실제 마크다운 표로 변환"""
+    """내부 데이터베이스를 마크다운 표로 변환"""
     try:
         url = f"https://api.notion.com/v1/databases/{db_id}/query"
         res = requests.post(url, headers=headers).json()
@@ -77,7 +77,6 @@ def block_to_md(block, current_dir, date_str):
         sub_title = data.get('title', 'Sub_Page')
         safe_name = re.sub(r'[\\/*?:"<>|]', '', sub_title).replace(' ', '_')
         sub_file = f"sub_{date_str}_{safe_name}.md"
-        # 하위 페이지를 별도 파일로 생성
         with open(os.path.join(current_dir, sub_file), "w", encoding="utf-8") as f:
             f.write(f"# {sub_title}\n\n> [뒤로 가기](./)\n\n---\n\n")
             for b in get_blocks(block['id']): f.write(block_to_md(b, current_dir, date_str))
@@ -94,19 +93,21 @@ def block_to_md(block, current_dir, date_str):
     return md
 
 def main():
+    # 환경변수 값 확인 (GitHub Actions의 체크박스는 'true'/'false' 문자열로 들어옴)
     reset_mode = os.environ.get('RESET_MODE', 'false').lower()
     fetch_mode = os.environ.get('FETCH_MODE', 'DAILY')
     kst = timezone(timedelta(hours=9))
     today = datetime.now(kst).strftime("%Y-%m-%d")
 
-    # [1] 강제 초기화 로직: 파일을 읽지 않고 아예 새로 씀 ("w")
+    # [초기화 로직] RESET_MODE가 true면 파일을 아예 새로 씀
     if reset_mode == 'true':
-        if os.path.exists(SAVE_DIR_ROOT): shutil.rmtree(SAVE_DIR_ROOT)
+        print(">> [강제 초기화] README.md와 TIL 폴더를 새로 생성합니다.")
+        if os.path.exists(SAVE_DIR_ROOT):
+            shutil.rmtree(SAVE_DIR_ROOT)
         with open(README_FILE, "w", encoding="utf-8") as f:
             f.write(f"# 📝 My TIL Collection\n\n## 📚 글 목록\n{MARKER_START}\n{MARKER_END}\n")
-        print(">> README와 TIL 폴더가 초기화되었습니다.")
 
-    # [2] 데이터 수집
+    # 데이터 수집 (Notion Query)
     payload = {} if fetch_mode == "ALL" else {"filter": {"property": "날짜", "date": {"equals": today}}}
     res = requests.post(f"https://api.notion.com/v1/databases/{DATABASE_ID}/query", headers=headers, json=payload).json()
     
@@ -121,9 +122,10 @@ def main():
 
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(f"# {title}\n\n> 날짜: {p_date}\n\n---\n\n")
-            for b in get_blocks(p['id']): f.write(block_to_md(b, dir_path, p_date))
+            for b in get_blocks(p['id']):
+                f.write(block_to_md(b, dir_path, p_date))
 
-    # [3] README 표 업데이트
+    # README 업데이트
     all_files = []
     for r, _, fs in os.walk(SAVE_DIR_ROOT):
         for f in fs:
@@ -132,13 +134,17 @@ def main():
     
     all_files.sort(key=lambda x: x['date'], reverse=True)
     table_content = "| 날짜 | 제목 | 링크 |\n| :--- | :--- | :--- |\n"
-    for i in all_files: table_content += f"| {i['date']} | {i['title']} | [보러가기](./{i['path']}) |\n"
+    for i in all_files:
+        table_content += f"| {i['date']} | {i['title']} | [보러가기](./{i['path']}) |\n"
 
-    with open(README_FILE, "r", encoding="utf-8") as f: content = f.read()
+    with open(README_FILE, "r", encoding="utf-8") as f:
+        content = f.read()
+    
     start, end = content.find(MARKER_START), content.find(MARKER_END)
     if start != -1 and end != -1:
         new_readme = content[:start+len(MARKER_START)] + "\n\n" + table_content + "\n" + content[end:]
-        with open(README_FILE, "w", encoding="utf-8") as f: f.write(new_readme)
+        with open(README_FILE, "w", encoding="utf-8") as f:
+            f.write(new_readme)
 
 if __name__ == "__main__":
     main()
