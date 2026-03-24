@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       RESET_MODE:
-        description: '⚠️ README 파일을 초기화하고 다시 만들까요? (체크 시 기존 내용 삭제됨)'
+        description: '⚠️ README 파일을 초기화하고 다시 만들까요?'
         type: boolean
         default: false
 
@@ -26,7 +26,7 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-          # 핵심: 체크박스 입력값을 RESET_MODE 환경 변수로 전달
+          # 이 줄이 체크박스 값을 파이썬으로 던져주는 생명줄입니다.
           RESET_MODE: ${{ github.event.inputs.RESET_MODE }}
           FETCH_MODE: "ALL"
         run: python update_readme.py
@@ -36,5 +36,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "docs: update notion log" || exit 0
+          git commit -m "docs: force update and reset" || exit 0
           git push
