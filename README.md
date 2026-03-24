@@ -7,6 +7,8 @@
 
 # 📝 My TIL Collection
 
+노션 연동 TIL 저장소입니다.
+
 ## 📚 글 목록
 
 
